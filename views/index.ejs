@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Welcome to the Home Page</h2>
+        <% if (user) { %>
+            <p>You are logged in as <strong><%= user.name %></strong>!</p>
+            <a href="/home" class="btn btn-primary mr-2">View Dashboard</a>
+            <a href="/logout" class="btn btn-danger">Logout</a>
+        <% } else { %>
+            <p>You are not logged in. Please <a href="/login">login</a> or <a href="/register">register</a>.</p>
+        <% } %>
+    </div>
+</body>
+</html>
