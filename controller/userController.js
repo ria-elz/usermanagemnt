@@ -136,10 +136,21 @@ const getEditUser = async (req, res) => {
     }
 };
 
+const findUserById = async (id) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM users WHERE id = ?', [id]);
+        return rows[0];  // Return user details
+    } catch (err) {
+        console.error("Error fetching user by ID from MySQL:", err);
+        throw err;
+    }
+};
+
 module.exports = { 
     userAdd, 
     loginUser, 
     updateUser, 
     deleteUser,
-    getEditUser 
+    getEditUser,
+    findUserById
 };

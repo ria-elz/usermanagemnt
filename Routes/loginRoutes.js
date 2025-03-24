@@ -1,14 +1,26 @@
 const express = require('express');
-const { findUserByEmail, createUser } = require('../model/userModel');
+const { findUserByEmail, createUser,findUserById} = require('../model/userModel');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { updateUser, deleteUser, getEditUser } = require('../controller/userController');
+const multer = require('multer');
+const path = require('path');
 
 const router = express.Router();
 
 
 const JWT_SECRET = 'your-secret-key';
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); 
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); 
+    }
+});
+
+const upload = multer({ storage: storage });
 
 router.post("/register", 
     [
@@ -85,11 +97,39 @@ router.post("/login",
 
 router.get("/edit/:id", getEditUser);
 
+// Add this route to your loginRoutes.js file
 
-router.post("/update", [
-    body('id').notEmpty().withMessage('User ID is required'),
-    body('name').notEmpty().withMessage('Name is required')
-], updateUser);
+router.get('/users/:id', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = await findUserById(userId);  // Fetch user details from the database
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('userDetails', { user });  // Render user details page with fetched user data
+    } catch (err) {
+        console.error("Error fetching user details:", err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+router.post("/update", upload.single('photo'), async (req, res) => {
+    const { id, name, email, place } = req.body;
+    const photo = req.file ? req.file.filename : null; 
+
+    try {
+        await updateUser(id, name, email, place, photo);  
+        res.redirect('/home');
+    } catch (err) {
+        console.error("Error updating user:", err);
+        res.status(500).send("Server Error");
+    }
+});
 
 
 router.get("/delete/:id", deleteUser);

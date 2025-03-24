@@ -31,7 +31,7 @@ const findUserById = async (id) => {
 
 const getAllUsers = async () => {
     try {
-        const [rows] = await db.query('SELECT id, name, email FROM users');  
+        const [rows] = await db.query('SELECT id, name, email, photo FROM users');  // Include photo
         return rows;
     } catch (err) {
         console.error("Error fetching all users from MySQL:", err);
@@ -39,14 +39,21 @@ const getAllUsers = async () => {
     }
 };
 
-const updateUser = async (id, name, email) => {
+const updateUser = async (id, name, email, photo) => {
     try {
-        await db.query('UPDATE users SET name = ?, email = ? WHERE id = ?', [name, email, id]);
+        const sqlQuery = photo
+            ? 'UPDATE users SET name = ?, email = ?, photo = ? WHERE id = ?'
+            : 'UPDATE users SET name = ?, email = ? WHERE id = ?';
+
+        const params = photo ? [name, email, photo, id] : [name, email, id];
+        await db.query(sqlQuery, params);
     } catch (err) {
         console.error("Error updating user in MySQL:", err);
         throw err;
     }
 };
+
+
 
 const deleteUser = async (id) => {
     try {
